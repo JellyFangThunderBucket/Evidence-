@@ -1,5 +1,5 @@
 // Main JavaScript logic for Evidence
-// Uses miniappsAI.storage for reliable cross-browser persistence
+// Uses browser localStorage for standalone publishing.
 
 // State
 let victories = [];
@@ -19,6 +19,7 @@ const exportBtn = document.getElementById('export-btn');
 
 // Constants
 const STORAGE_KEY = 'evidence_victories';
+const CATEGORIES = new Set(['Learned', 'Built', 'Fixed', 'Understood']);
 
 // Initialization
 document.addEventListener('DOMContentLoaded', async () => {
@@ -48,14 +49,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Event Listeners
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
-  
+
   const text = input.value.trim();
-  const category = select.value;
-  
+  const category = normalizeCategory(select.value);
+
   if (!text) return;
 
   const newVictory = {
-    id: Date.now().toString(),
+    id: createVictoryId(),
     text,
     category,
     timestamp: new Date().toISOString()
@@ -63,20 +64,17 @@ form.addEventListener('submit', async (e) => {
 
   victories.unshift(newVictory);
   await saveVictories();
-  
+
   input.value = '';
   renderTimeline();
 });
 
-// Storage Functions (Using miniappsAI.storage)
+// Storage Functions
 async function loadVictories() {
   try {
-    const stored = await miniappsAI.storage.getItem(STORAGE_KEY);
-    if (stored) {
-      victories = JSON.parse(stored);
-    } else {
-      victories = [];
-    }
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    const parsed = stored ? JSON.parse(stored) : [];
+    victories = Array.isArray(parsed) ? parsed.map(normalizeVictory).filter(Boolean) : [];
   } catch (error) {
     console.error('Failed to load victories:', error);
     victories = [];
@@ -85,17 +83,47 @@ async function loadVictories() {
 
 async function saveVictories() {
   try {
-    await miniappsAI.storage.setItem(STORAGE_KEY, JSON.stringify(victories));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(victories));
   } catch (error) {
     console.error('Failed to save victories:', error);
-    alert('Could not save victory. Storage might be full.');
+    alert('Could not save victory. Storage might be full or unavailable in this browser.');
   }
+}
+
+function normalizeVictory(victory) {
+  if (!victory || typeof victory !== 'object') return null;
+
+  const text = typeof victory.text === 'string' ? victory.text.trim() : '';
+  if (!text) return null;
+
+  const timestamp = Number.isNaN(Date.parse(victory.timestamp))
+    ? new Date().toISOString()
+    : victory.timestamp;
+
+  return {
+    id: victory.id ? String(victory.id) : createVictoryId(),
+    text,
+    category: normalizeCategory(victory.category),
+    timestamp
+  };
+}
+
+function normalizeCategory(category) {
+  return CATEGORIES.has(category) ? category : 'Learned';
+}
+
+function createVictoryId() {
+  if (window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 // Delete victory
 async function deleteVictory(id) {
   if (!confirm('Remove this victory from your timeline?')) return;
-  
+
   victories = victories.filter(v => v.id !== id);
   await saveVictories();
   renderTimeline();
@@ -110,7 +138,7 @@ function exportTimeline() {
 
   const dataStr = JSON.stringify(victories, null, 2);
   const dataBlob = new Blob([dataStr], { type: 'application/json' });
-  
+
   const url = URL.createObjectURL(dataBlob);
   const link = document.createElement('a');
   link.href = url;
@@ -151,7 +179,7 @@ function renderTimeline() {
   }
 
   if (searchTerm) {
-    filtered = filtered.filter(v => 
+    filtered = filtered.filter(v =>
       v.text.toLowerCase().includes(searchTerm)
     );
   }
@@ -174,22 +202,22 @@ function renderTimeline() {
   filtered.forEach(victory => {
     const el = document.createElement('div');
     el.className = 'victory-item';
-    
+
     const badgeClass = `badge-${victory.category}`;
-    
+
     el.innerHTML = `
       <div class="timeline-dot-wrapper">
         <div class="timeline-dot"></div>
       </div>
-      
+
       <div class="victory-content">
         <div class="victory-meta">
           <span class="victory-badge ${badgeClass}">
             ${victory.category}
           </span>
           <div class="victory-actions">
-            <time class="victory-time">${formatTime(victory.timestamp)}</time>
-            <button class="delete-btn" aria-label="Delete victory" data-id="${victory.id}">
+            <time class="victory-time" datetime="${victory.timestamp}">${formatTime(victory.timestamp)}</time>
+            <button class="delete-btn" aria-label="Delete victory" data-id="${escapeHtml(victory.id)}">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/>
               </svg>

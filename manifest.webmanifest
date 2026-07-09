@@ -1,0 +1,10 @@
+{
+  "name": "Evidence",
+  "short_name": "Evidence",
+  "description": "A private progress timeline for logging small wins and milestones.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": []
+}
