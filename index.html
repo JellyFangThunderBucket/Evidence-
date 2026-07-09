@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evidence</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  
+  <div class="app-container">
+    
+    <header class="app-header">
+      <h1>Evidence</h1>
+      <p>Log your progress. Calmly.</p>
+    </header>
+
+    <section class="input-card">
+      <form id="victory-form">
+        <div class="form-group">
+          <label for="victory-text" class="sr-only">Victory Description</label>
+          <input 
+            type="text" 
+            id="victory-text" 
+            placeholder="What did you accomplish?" 
+            required
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="form-row">
+          <div class="select-wrapper">
+            <select id="category-select">
+              <option value="Learned">Learned</option>
+              <option value="Built">Built</option>
+              <option value="Fixed">Fixed</option>
+              <option value="Understood">Understood</option>
+            </select>
+            <div class="select-arrow">
+              <svg viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            </div>
+          </div>
+          
+          <button type="submit" class="submit-btn">
+            <span>Log Victory</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="timeline-section">
+      <div class="timeline-header">
+        <h2>Timeline</h2>
+        <div class="header-actions">
+          <span id="count-display">0 victories</span>
+          <button id="export-btn" class="export-btn" aria-label="Export timeline as JSON">
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Search and Filters -->
+      <div class="controls">
+        <input 
+          type="text" 
+          id="search-input" 
+          placeholder="Search victories..." 
+          class="search-input"
+        >
+        
+        <div class="filter-group">
+          <button class="filter-btn active" data-category="All">All</button>
+          <button class="filter-btn" data-category="Learned">Learned</button>
+          <button class="filter-btn" data-category="Built">Built</button>
+          <button class="filter-btn" data-category="Fixed">Fixed</button>
+          <button class="filter-btn" data-category="Understood">Understood</button>
+        </div>
+      </div>
+      
+      <div id="timeline-container" class="timeline">
+        <div class="timeline-line"></div>
+        <div id="empty-state" class="empty-state hidden">
+          <p>No victories logged yet.</p>
+          <p class="sub-text">Start by adding your first win above.</p>
+        </div>
+        <!-- Items injected here -->
+      </div>
+    </section>
+
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
