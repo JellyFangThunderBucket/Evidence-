@@ -88,6 +88,8 @@ async function saveVictories() {
     console.error('Failed to save victories:', error);
     alert('Could not save victory. Storage might be full or unavailable in this browser.');
   }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 function normalizeVictory(victory) {
