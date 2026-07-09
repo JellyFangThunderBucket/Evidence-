@@ -8,7 +8,7 @@ Evidence is a lightweight, private progress timeline for recording small wins an
 - Search and filter the timeline locally in the browser.
 - Delete entries you no longer want to keep.
 - Export your timeline as JSON for backup.
-- Stores data in `miniappsAI.storage` when available and falls back to browser `localStorage` for standalone hosting.
+- Stores data locally in the browser with `localStorage` for standalone hosting.
 
 ## Publishing on GitHub Pages
 

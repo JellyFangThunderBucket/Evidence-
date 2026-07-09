@@ -1,5 +1,5 @@
 // Main JavaScript logic for Evidence
-// Uses miniappsAI.storage when available and falls back to localStorage for standalone publishing.
+// Uses browser localStorage for standalone publishing.
 
 // State
 let victories = [];
@@ -20,7 +20,6 @@ const exportBtn = document.getElementById('export-btn');
 // Constants
 const STORAGE_KEY = 'evidence_victories';
 const CATEGORIES = new Set(['Learned', 'Built', 'Fixed', 'Understood']);
-const storageProvider = getStorageProvider();
 
 // Initialization
 document.addEventListener('DOMContentLoaded', async () => {
@@ -71,25 +70,9 @@ form.addEventListener('submit', async (e) => {
 });
 
 // Storage Functions
-function getStorageProvider() {
-  if (window.miniappsAI?.storage) {
-    return window.miniappsAI.storage;
-  }
-
-  return {
-    getItem(key) {
-      return Promise.resolve(window.localStorage.getItem(key));
-    },
-    setItem(key, value) {
-      window.localStorage.setItem(key, value);
-      return Promise.resolve();
-    }
-  };
-}
-
 async function loadVictories() {
   try {
-    const stored = await storageProvider.getItem(STORAGE_KEY);
+    const stored = window.localStorage.getItem(STORAGE_KEY);
     const parsed = stored ? JSON.parse(stored) : [];
     victories = Array.isArray(parsed) ? parsed.map(normalizeVictory).filter(Boolean) : [];
   } catch (error) {
@@ -100,11 +83,13 @@ async function loadVictories() {
 
 async function saveVictories() {
   try {
-    await storageProvider.setItem(STORAGE_KEY, JSON.stringify(victories));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(victories));
   } catch (error) {
     console.error('Failed to save victories:', error);
     alert('Could not save victory. Storage might be full or unavailable in this browser.');
   }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 function normalizeVictory(victory) {
